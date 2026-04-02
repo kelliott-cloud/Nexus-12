@@ -1204,6 +1204,12 @@ async def _create_indexes():
     except Exception as _e:
         logger.warning(f"Super admin password check: {_e}")
 
+    # Start Redis Pub/Sub subscriber for cross-instance WebSocket fan-out
+    try:
+        await ws_manager.start_subscriber()
+    except Exception as e:
+        logger.warning(f"WebSocket Pub/Sub subscriber failed to start: {e}")
+
     # Background tasks: on Cloud Run, use external triggers (Cloud Scheduler -> /internal/* endpoints)
     # instead of in-process loops. Set ENABLE_BACKGROUND_TASKS=true only for single-instance / VM deploys.
     _enable_bg = os.environ.get("ENABLE_BACKGROUND_TASKS", "").lower() in ("true", "1", "yes")

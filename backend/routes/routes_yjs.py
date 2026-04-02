@@ -6,20 +6,70 @@ Features:
 - Awareness protocol support (cursor positions, user presence)
 - Room-level access control
 - Automatic stale room cleanup
+- Redis Pub/Sub for cross-instance relay (Cloud Run)
 """
 import logging
 import asyncio
+import base64
+import json
+import os
 from datetime import datetime, timezone
 from fastapi import WebSocket, WebSocketDisconnect
 
 logger = logging.getLogger(__name__)
 
-# Active Yjs rooms: room_name -> {"clients": set(), "state": bytes, "awareness": dict}
 _yjs_rooms = {}
+_YJS_PUBSUB_PREFIX = "nexus:yjs:"
+_YJS_INSTANCE_ID = os.environ.get("HOSTNAME", "") or os.urandom(8).hex()
+
+
+async def _start_yjs_subscriber():
+    """Subscribe to Redis Pub/Sub for Yjs updates from other instances."""
+    while True:
+        try:
+            from redis_client import get_redis
+            r = await get_redis()
+            if not r:
+                await asyncio.sleep(5)
+                continue
+            pubsub = r.pubsub()
+            await pubsub.psubscribe(f"{_YJS_PUBSUB_PREFIX}*")
+            logger.info("Yjs Redis Pub/Sub subscriber started")
+            async for message in pubsub.listen():
+                if message["type"] not in ("pmessage",):
+                    continue
+                try:
+                    envelope = json.loads(message["data"])
+                    if envelope.get("src") == _YJS_INSTANCE_ID:
+                        continue
+                    room = envelope.get("room", "")
+                    data_b64 = envelope.get("data", "")
+                    if room and room in _yjs_rooms and data_b64:
+                        data = base64.b64decode(data_b64)
+                        dead = []
+                        for ws in _yjs_rooms[room]["clients"]:
+                            try:
+                                await ws.send_bytes(data)
+                            except Exception:
+                                dead.append(ws)
+                        for ws in dead:
+                            _yjs_rooms[room]["clients"].discard(ws)
+                except Exception as e:
+                    logger.debug(f"Yjs Pub/Sub parse error: {e}")
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.warning(f"Yjs Pub/Sub subscriber error, reconnecting in 5s: {e}")
+            await asyncio.sleep(5)
 
 
 def register_yjs_routes(app, db):
     """Register the enhanced Yjs WebSocket sync endpoint with persistence."""
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(_start_yjs_subscriber())
+    except RuntimeError:
+        pass
 
     async def _load_doc_state(room: str) -> bytes:
         """Load persisted document state from MongoDB."""
@@ -154,7 +204,7 @@ def register_yjs_routes(app, db):
                                 save_task.cancel()
                             save_task = asyncio.create_task(_debounced_save())
 
-                # Broadcast to all other clients in the same room
+                # Broadcast to all other local clients in the same room
                 dead = []
                 for ws in room_data["clients"]:
                     if ws != websocket:
@@ -164,6 +214,20 @@ def register_yjs_routes(app, db):
                             dead.append(ws)
                 for ws in dead:
                     room_data["clients"].discard(ws)
+
+                # Publish to Redis for cross-instance relay
+                try:
+                    from redis_client import get_redis
+                    r = await get_redis()
+                    if r:
+                        envelope = json.dumps({
+                            "src": _YJS_INSTANCE_ID,
+                            "room": room,
+                            "data": base64.b64encode(data).decode(),
+                        })
+                        await r.publish(f"{_YJS_PUBSUB_PREFIX}{room}", envelope)
+                except Exception:
+                    pass
 
         except WebSocketDisconnect:
             pass
