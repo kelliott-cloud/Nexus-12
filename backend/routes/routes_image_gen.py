@@ -106,19 +106,11 @@ def register_image_gen_routes(api_router, db, get_current_user):
                         text_response = result["data"][0].get("revised_prompt", "")
 
             elif data.provider == "imagen4":
-                async with httpx.AsyncClient(timeout=90.0) as client:
-                    resp = await client.post(
-                        "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:generateImages",
-                        headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
-                        json={"prompt": data.prompt, "config": {"numberOfImages": 1, "aspectRatio": "1:1", "outputOptions": {"addWatermark": True}}}
-                    )
-                    resp.raise_for_status()
-                    result = resp.json()
-                    generated = result.get("generatedImages", result.get("predictions", []))
-                    if generated:
-                        img = generated[0]
-                        image_data = img.get("image", {}).get("imageBytes", "") or img.get("bytesBase64Encoded", "")
-                        mime_type = img.get("image", {}).get("mimeType", "image/png") or img.get("mimeType", "image/png")
+                from ai_providers import call_imagen4
+                result = await call_imagen4(api_key, data.prompt, workspace_id=workspace_id)
+                if result.get("images"):
+                    image_data = result["images"][0].get("base64", "")
+                    mime_type = result["images"][0].get("mime_type", "image/png")
 
             elif data.provider == "nano_banana":
                 from ai_providers import call_nano_banana
