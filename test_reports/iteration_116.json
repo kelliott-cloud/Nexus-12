@@ -1,0 +1,81 @@
+{
+  "summary": "Iteration 116 - Nexus AI Budget Controls Testing Complete. All 15 backend API tests passed (3 org tests skipped due to no org admin membership). Frontend UI verified: Budget Center, Platform Panel, Workspace Panel all visible with 58 provider budget rows, 2 save buttons, warn/hardcap inputs working.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Nexus AI Settings",
+        "issues": ["Minor hydration warnings in console for span/option/select elements - cosmetic only, does not affect functionality"]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration116_nexus_ai_budgets.py",
+    "/app/test_reports/pytest/iteration116_nexus_ai_budgets_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_iteration116_nexus_ai_budgets.py"
+  ],
+  "success_rate": {
+    "backend": "100% (15/15 tests passed, 3 skipped)",
+    "frontend": "100% (All UI components verified)"
+  },
+  "test_credentials": "kelliott@urtech.org / test",
+  "seed_data_creation": "None - used existing test data",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Nexus AI Budget Controls fully tested: 1) Platform budget APIs (GET/PUT /api/admin/managed-keys/budgets, GET /api/admin/managed-keys/dashboard) working. 2) Workspace budget APIs (GET/PUT /api/workspaces/{id}/nexus-ai/budgets, GET /api/workspaces/{id}/nexus-ai/dashboard) working. 3) Budget validation (warn > cap rejected, negative values rejected). 4) GitHub integration endpoints accessible with budget tracking. 5) UI shows Budget Center with Platform and Workspace panels, 29 providers each with warn/hardcap inputs and enabled checkboxes. 6) Org budget APIs skipped (test user has no org admin membership).",
+  "features_verified": {
+    "platform_budget_api": {
+      "status": "PASS",
+      "details": "GET/PUT /api/admin/managed-keys/budgets returns 200, saves budgets correctly"
+    },
+    "platform_dashboard_api": {
+      "status": "PASS",
+      "details": "GET /api/admin/managed-keys/dashboard returns scope_type=platform, month_key, total_cost_usd, providers"
+    },
+    "workspace_budget_api": {
+      "status": "PASS",
+      "details": "GET/PUT /api/workspaces/{id}/nexus-ai/budgets returns 200, saves budgets correctly"
+    },
+    "workspace_dashboard_api": {
+      "status": "PASS",
+      "details": "GET /api/workspaces/{id}/nexus-ai/dashboard returns scope_type=workspace, month_key, total_cost_usd, providers"
+    },
+    "budget_validation": {
+      "status": "PASS",
+      "details": "warn_threshold > hard_cap returns 422, negative values return 422"
+    },
+    "budget_hierarchy": {
+      "status": "PASS",
+      "details": "Workspace budget overrides platform budget correctly"
+    },
+    "github_integration": {
+      "status": "PASS",
+      "details": "GitHub pull/push endpoints accessible with budget tracking integrated"
+    },
+    "nexus_ai_ui": {
+      "status": "PASS",
+      "details": "Settings > Nexus AI tab loads Budget Center with Platform and Workspace panels, 58 provider rows, save buttons, warn/hardcap inputs"
+    },
+    "managed_keys_settings": {
+      "status": "PASS",
+      "details": "GET /api/settings/managed-keys returns providers with available/opted_in/eligible/type fields"
+    },
+    "credits_api": {
+      "status": "PASS",
+      "details": "GET /api/settings/managed-keys/credits returns credits_total, credits_used, credits_remaining, plan"
+    }
+  },
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "mocked_apis_list": []
+  }
+}

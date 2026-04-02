@@ -1,0 +1,93 @@
+{
+  "summary": "Iteration 106 - ROI Comparison Dashboard, Revenue Sharing Dashboard, Gemini Dense Embeddings. All 23 backend tests passed (100%). Frontend verified: ROI Calculator with Compare view, Revenue Sharing page with empty state, period selectors all functional.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration106_roi_revenue_embeddings.py",
+    "/app/test_reports/pytest/iteration106_roi_revenue_embeddings.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ROI Comparison endpoints properly aggregate data from user's owned/member workspaces",
+    "Revenue dashboard returns proper structure with creator/buyer sections and 20% platform fee",
+    "Gemini embeddings module correctly implements cosine similarity and batch processing",
+    "Agent pricing endpoints properly validate price_usd (>=0, <=10000) and pricing_model (one_time|monthly)",
+    "Dense embeddings use task_type='RETRIEVAL_QUERY' for queries vs 'RETRIEVAL_DOCUMENT' for documents",
+    "_semantic_select in agent_knowledge_retrieval.py prioritizes: dense embeddings → BM25 → TF-IDF fallback"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration106_roi_revenue_embeddings.py"
+  ],
+  "success_rate": {
+    "backend": "100% (23/23 tests passed)",
+    "frontend": "100% (ROI Comparison, Revenue Sharing, and period selectors all verified)"
+  },
+  "test_credentials": {
+    "email": "kelliott@urtech.org",
+    "password": "test",
+    "workspace_id": "ws_a92cb83bfdb2"
+  },
+  "seed_data_creation": "No seed data created - tested with existing workspaces and empty transaction collections",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 106 features fully verified: 1) ROI Comparison - GET /api/roi-comparison/workspaces returns workspace comparison data with all fields (cost, calls, tokens, messages, roi_multiplier, efficiency_score, agent_count, knowledge_chunks). GET /api/roi-comparison/trend returns daily cost trends per workspace. 2) Revenue Dashboard - GET /api/marketplace/revenue/dashboard returns creator (earnings, sales, platform_fee=20%, per_agent, recent_transactions) and buyer (total_purchases, purchases) sections. Empty state handled with $0 earnings. 3) Agent Pricing - PUT/GET /api/marketplace/agents/{agent_id}/pricing with validation (404 for non-existent agents). 4) Gemini Embeddings - Module imports correctly, cosine_similarity_dense works, constants (GEMINI_MODEL='gemini-embedding-001', EMBEDDING_DIM=768, BATCH_SIZE=50) correct. 5) Frontend UI - ROI Calculator shows Calculator/Compare toggle, Compare view shows workspace table + cost distribution + resource cards, Revenue page shows 4 stat cards + empty state message. Period selectors (7d/30d/90d) functional.",
+  "verified_features": {
+    "roi_comparison_backend": {
+      "workspaces_endpoint": "PASS - GET /api/roi-comparison/workspaces?period=30d returns workspaces array with all required fields",
+      "trend_endpoint": "PASS - GET /api/roi-comparison/trend?period=30d returns trends object with workspace_name and daily array",
+      "period_support": "PASS - Supports 7d, 30d, 90d periods",
+      "auth_required": "PASS - Returns 401 without auth"
+    },
+    "revenue_sharing_backend": {
+      "dashboard_endpoint": "PASS - GET /api/marketplace/revenue/dashboard returns creator and buyer sections",
+      "creator_structure": "PASS - Has total_earnings_usd, total_sales, platform_fee_pct (20%), per_agent, recent_transactions",
+      "buyer_structure": "PASS - Has total_purchases, purchases list",
+      "empty_state": "PASS - Returns $0 earnings and 0 sales when no transactions",
+      "auth_required": "PASS - Returns 401 without auth"
+    },
+    "agent_pricing_backend": {
+      "get_nonexistent": "PASS - Returns 404 for non-existent agent",
+      "put_nonexistent": "PASS - Returns 404 for non-existent agent",
+      "validation_negative_price": "PASS - Rejects negative prices (422 or 404)",
+      "validation_invalid_model": "PASS - Rejects invalid pricing_model (422 or 404)",
+      "auth_required": "PASS - Returns 401 without auth"
+    },
+    "gemini_embeddings_module": {
+      "import": "PASS - All functions importable (generate_embeddings, generate_query_embedding, cosine_similarity_dense, compute_and_store_dense_embeddings, retrieve_with_dense_embeddings)",
+      "cosine_similarity": "PASS - Correct calculation for identical (1.0), orthogonal (0.0), opposite (-1.0) vectors",
+      "edge_cases": "PASS - Handles empty vectors, mismatched lengths, zero vectors",
+      "constants": "PASS - GEMINI_MODEL='gemini-embedding-001', EMBEDDING_DIM=768, BATCH_SIZE=50"
+    },
+    "knowledge_retrieval": {
+      "function_exists": "PASS - retrieve_training_knowledge callable",
+      "api_endpoint": "PASS - POST /api/workspaces/{ws}/agents/{agent}/knowledge/query"
+    },
+    "frontend_roi_calculator": {
+      "component_renders": "PASS - data-testid='roi-calculator' found",
+      "calculator_toggle": "PASS - data-testid='roi-view-calculator' button found",
+      "compare_toggle": "PASS - data-testid='roi-view-comparison' button found",
+      "comparison_view": "PASS - Shows workspace table, cost distribution, resource cards",
+      "stat_cards": "PASS - 4 StatCards (Total Cost, Time Saved, ROI Multiplier, Messages)",
+      "period_selectors": "PASS - 7d, 30d, 90d buttons functional"
+    },
+    "frontend_revenue_sharing": {
+      "component_renders": "PASS - data-testid='revenue-sharing' found",
+      "earnings_stat": "PASS - Shows $0 (empty state)",
+      "platform_fee": "PASS - Shows 20%",
+      "empty_state_message": "PASS - 'No revenue activity yet' displayed",
+      "stats_cards": "PASS - 4 cards (Earnings, Total Sales, Platform Fee, Purchases)"
+    }
+  },
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "mocked_apis_list": [],
+    "note": "Stripe Checkout uses test key sk_test_emergent - this is a real test key for development"
+  }
+}

@@ -1,0 +1,399 @@
+/* Nexus Platform Themes — Nature-inspired color palettes */
+/* Background images replaced with CSS gradients (NX-012) */
+
+/* ===== Theme Custom Properties ===== */
+
+.theme-beach {
+  --nx-accent: #f0c040;
+  --nx-bg-deep: #0c1929;
+  --nx-bg-primary: #132640;
+  --nx-bg-secondary: #1a3556;
+  --nx-border: #2a5078;
+  --nx-bg-image: linear-gradient(135deg, #0c1929 0%, #1a3556 30%, #2a5078 60%, #f0c04015 100%);
+}
+.theme-forest {
+  --nx-accent: #4ade80;
+  --nx-bg-deep: #0d1a0d;
+  --nx-bg-primary: #142814;
+  --nx-bg-secondary: #1e3a1e;
+  --nx-border: #2d5a2d;
+  --nx-bg-image: linear-gradient(135deg, #0d1a0d 0%, #142814 30%, #1e3a1e 60%, #4ade8012 100%);
+}
+.theme-desert {
+  --nx-accent: #e8a040;
+  --nx-bg-deep: #1a140d;
+  --nx-bg-primary: #2a2018;
+  --nx-bg-secondary: #3d3025;
+  --nx-border: #5a4a3a;
+  --nx-bg-image: linear-gradient(135deg, #1a140d 0%, #3d3025 40%, #5a4a3a 70%, #e8a04010 100%);
+}
+.theme-river {
+  --nx-accent: #38bdf8;
+  --nx-bg-deep: #0a1520;
+  --nx-bg-primary: #102030;
+  --nx-bg-secondary: #183048;
+  --nx-border: #2a4a6a;
+  --nx-bg-image: linear-gradient(135deg, #0a1520 0%, #183048 35%, #2a4a6a 65%, #38bdf810 100%);
+}
+.theme-mountain {
+  --nx-accent: #a78bfa;
+  --nx-bg-deep: #12121a;
+  --nx-bg-primary: #1c1c28;
+  --nx-bg-secondary: #282838;
+  --nx-border: #404058;
+  --nx-bg-image: linear-gradient(135deg, #12121a 0%, #282838 40%, #404058 70%, #a78bfa10 100%);
+}
+.theme-sunset {
+  --nx-accent: #f472b6;
+  --nx-bg-deep: #1a0d14;
+  --nx-bg-primary: #2a1520;
+  --nx-bg-secondary: #3d2030;
+  --nx-border: #5a3548;
+  --nx-bg-image: linear-gradient(135deg, #1a0d14 0%, #3d2030 35%, #5a3548 65%, #f472b610 100%);
+}
+.theme-aurora {
+  --nx-accent: #2dd4bf;
+  --nx-bg-deep: #0a1418;
+  --nx-bg-primary: #101e24;
+  --nx-bg-secondary: #182a32;
+  --nx-border: #2a4a52;
+  --nx-bg-image: linear-gradient(135deg, #0a1418 0%, #182a32 30%, #2a4a52 60%, #2dd4bf12 100%);
+}
+
+/* Tropical */
+.theme-tropical {
+  --nx-accent: #06b6d4;
+  --nx-bg-deep: #0a1a1e;
+  --nx-bg-primary: #0f2830;
+  --nx-bg-secondary: #163840;
+  --nx-border: #1e5060;
+  --nx-bg-image: linear-gradient(135deg, #0a1a1e 0%, #163840 35%, #1e5060 65%, #06b6d410 100%);
+}
+/* Arctic */
+.theme-arctic {
+  --nx-accent: #7dd3fc;
+  --nx-bg-deep: #0a1220;
+  --nx-bg-primary: #0f1c30;
+  --nx-bg-secondary: #162840;
+  --nx-border: #2a4a6a;
+  --nx-bg-image: linear-gradient(135deg, #0a1220 0%, #162840 35%, #2a4a6a 65%, #7dd3fc10 100%);
+}
+/* Volcano */
+.theme-volcano {
+  --nx-accent: #ef4444;
+  --nx-bg-deep: #1a0a0a;
+  --nx-bg-primary: #2a1210;
+  --nx-bg-secondary: #3d1a18;
+  --nx-border: #5a2a28;
+  --nx-bg-image: linear-gradient(135deg, #1a0a0a 0%, #3d1a18 35%, #5a2a28 65%, #ef444410 100%);
+}
+/* Cherry Blossom */
+.theme-cherry-blossom {
+  --nx-accent: #f9a8d4;
+  --nx-bg-deep: #1a0d14;
+  --nx-bg-primary: #281520;
+  --nx-bg-secondary: #38202e;
+  --nx-border: #50354a;
+  --nx-bg-image: linear-gradient(135deg, #1a0d14 0%, #38202e 35%, #50354a 65%, #f9a8d410 100%);
+}
+/* Lavender */
+.theme-lavender {
+  --nx-accent: #c084fc;
+  --nx-bg-deep: #14101a;
+  --nx-bg-primary: #201828;
+  --nx-bg-secondary: #2e2238;
+  --nx-border: #483a58;
+  --nx-bg-image: linear-gradient(135deg, #14101a 0%, #2e2238 35%, #483a58 65%, #c084fc10 100%);
+}
+/* Midnight */
+.theme-midnight {
+  --nx-accent: #818cf8;
+  --nx-bg-deep: #08080f;
+  --nx-bg-primary: #10101a;
+  --nx-bg-secondary: #181828;
+  --nx-border: #2a2a48;
+  --nx-bg-image: linear-gradient(135deg, #08080f 0%, #181828 35%, #2a2a48 65%, #818cf810 100%);
+}
+/* Coral Reef */
+.theme-coral-reef {
+  --nx-accent: #22d3ee;
+  --nx-bg-deep: #0a141a;
+  --nx-bg-primary: #0f2028;
+  --nx-bg-secondary: #162a35;
+  --nx-border: #204050;
+  --nx-bg-image: linear-gradient(135deg, #0a141a 0%, #162a35 35%, #204050 65%, #22d3ee10 100%);
+}
+/* Savanna */
+.theme-savanna {
+  --nx-accent: #fbbf24;
+  --nx-bg-deep: #1a140a;
+  --nx-bg-primary: #281e10;
+  --nx-bg-secondary: #382a18;
+  --nx-border: #504028;
+  --nx-bg-image: linear-gradient(135deg, #1a140a 0%, #382a18 35%, #504028 65%, #fbbf2410 100%);
+}
+/* Bamboo */
+.theme-bamboo {
+  --nx-accent: #86efac;
+  --nx-bg-deep: #0a140a;
+  --nx-bg-primary: #102010;
+  --nx-bg-secondary: #182e18;
+  --nx-border: #284a28;
+  --nx-bg-image: linear-gradient(135deg, #0a140a 0%, #182e18 35%, #284a28 65%, #86efac10 100%);
+}
+/* Glacier */
+.theme-glacier {
+  --nx-accent: #67e8f9;
+  --nx-bg-deep: #0a1218;
+  --nx-bg-primary: #0f1c28;
+  --nx-bg-secondary: #162838;
+  --nx-border: #2a4058;
+  --nx-bg-image: linear-gradient(135deg, #0a1218 0%, #162838 35%, #2a4058 65%, #67e8f910 100%);
+}
+/* Autumn */
+.theme-autumn {
+  --nx-accent: #fb923c;
+  --nx-bg-deep: #1a100a;
+  --nx-bg-primary: #281a10;
+  --nx-bg-secondary: #382418;
+  --nx-border: #503828;
+  --nx-bg-image: linear-gradient(135deg, #1a100a 0%, #382418 35%, #503828 65%, #fb923c10 100%);
+}
+/* Nebula */
+.theme-nebula {
+  --nx-accent: #e879f9;
+  --nx-bg-deep: #0d0818;
+  --nx-bg-primary: #180f28;
+  --nx-bg-secondary: #221838;
+  --nx-border: #3a2858;
+  --nx-bg-image: linear-gradient(135deg, #0d0818 0%, #221838 35%, #3a2858 65%, #e879f910 100%);
+}
+/* Rainforest */
+.theme-rainforest {
+  --nx-accent: #34d399;
+  --nx-bg-deep: #0a160a;
+  --nx-bg-primary: #102210;
+  --nx-bg-secondary: #183018;
+  --nx-border: #284828;
+  --nx-bg-image: linear-gradient(135deg, #0a160a 0%, #183018 35%, #284828 65%, #34d39910 100%);
+}
+
+
+/* ============================================================ */
+/* === MAIN PANEL: Background Image in Content Area          === */
+/* ============================================================ */
+
+/* --- Dashboard: image behind the workspace cards area --- */
+html[class*="theme-"] [data-testid="dashboard-page"] > main {
+  position: relative;
+  background: transparent !important;
+}
+html[class*="theme-"] [data-testid="dashboard-page"] > main::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 224px;
+  right: 0;
+  bottom: 0;
+  background-image: var(--nx-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+html[class*="theme-"] [data-testid="dashboard-page"] > main > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Workspace: image behind ALL module content --- */
+html[class*="theme-"] [data-testid="workspace-page"] > div:not([data-testid="sidebar"]) {
+  position: relative;
+}
+html[class*="theme-"] [data-testid="workspace-page"] > div:not([data-testid="sidebar"])::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: var(--nx-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+/* All direct children of workspace content sit above the image */
+html[class*="theme-"] [data-testid="workspace-page"] > div:not([data-testid="sidebar"]) > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================ */
+/* === TRANSPARENT CONTENT PANELS (let image show through)   === */
+/* ============================================================ */
+
+/* Make all module panel root backgrounds transparent */
+html[class*="theme-"] [data-testid="chat-panel"],
+html[class*="theme-"] [data-testid="no-channel-selected"],
+html[class*="theme-"] [data-testid="project-list"],
+html[class*="theme-"] [data-testid="drive-panel"] {
+  background-color: transparent !important;
+}
+
+/* All bg-zinc-950 INSIDE the workspace main content → transparent */
+html[class*="theme-"] [data-testid="workspace-page"] > div:not([data-testid="sidebar"]) .bg-zinc-950,
+html[class*="theme-"] [data-testid="workspace-page"] > div:not([data-testid="sidebar"]) .bg-\[\#09090b\] {
+  background-color: transparent !important;
+}
+
+/* Dashboard main area content panels → transparent */
+html[class*="theme-"] [data-testid="dashboard-page"] > main .bg-zinc-950,
+html[class*="theme-"] [data-testid="dashboard-page"] > main .bg-\[\#09090b\],
+html[class*="theme-"] [data-testid="dashboard-page"] > main .bg-\[\#09090b\]\/80 {
+  background-color: transparent !important;
+}
+
+
+/* ============================================================ */
+/* === SIDEBAR & NAV: Solid Color-Coded Backgrounds          === */
+/* ============================================================ */
+
+/* Root html/body background */
+html[class*="theme-"],
+html[class*="theme-"] body,
+html[class*="theme-"] #root {
+  background-color: var(--nx-bg-deep) !important;
+}
+
+/* Outer page containers */
+html[class*="theme-"] .bg-zinc-950,
+html[class*="theme-"] .bg-\[\#09090b\] {
+  background-color: var(--nx-bg-deep) !important;
+}
+
+/* Sidebar — solid themed color, NOT transparent */
+html[class*="theme-"] [data-testid="dashboard-sidebar"],
+html[class*="theme-"] [data-testid="sidebar"] {
+  background-color: var(--nx-bg-primary) !important;
+  border-color: var(--nx-border) !important;
+}
+
+/* Header bars — semi-transparent themed overlay so image peeks through */
+html[class*="theme-"] [data-testid="dashboard-page"] > main > .sticky,
+html[class*="theme-"] [data-testid="workspace-page"] .flex-shrink-0.border-b {
+  background-color: color-mix(in srgb, var(--nx-bg-primary) 80%, transparent) !important;
+  backdrop-filter: blur(16px);
+}
+
+/* Tab bar area */
+html[class*="theme-"] [data-testid="workspace-page"] .bg-zinc-900\/50 {
+  background-color: color-mix(in srgb, var(--nx-bg-primary) 75%, transparent) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* Channel header bar in chat */
+html[class*="theme-"] [data-testid="chat-panel"] > div:first-child {
+  background-color: color-mix(in srgb, var(--nx-bg-primary) 80%, transparent) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* Message input area */
+html[class*="theme-"] [data-testid="chat-panel"] > div:last-child {
+  background-color: color-mix(in srgb, var(--nx-bg-deep) 85%, transparent) !important;
+  backdrop-filter: blur(8px);
+}
+
+
+/* ============================================================ */
+/* === COMPONENT COLOR OVERRIDES                             === */
+/* ============================================================ */
+
+/* Primary backgrounds: bg-zinc-900 variants */
+html[class*="theme-"] .bg-zinc-900,
+html[class*="theme-"] .bg-zinc-900\/50,
+html[class*="theme-"] .bg-zinc-900\/40,
+html[class*="theme-"] .bg-zinc-900\/30,
+html[class*="theme-"] .bg-zinc-900\/60,
+html[class*="theme-"] .bg-zinc-900\/95,
+html[class*="theme-"] .bg-zinc-900\/20 {
+  background-color: var(--nx-bg-primary) !important;
+}
+
+/* Secondary backgrounds: bg-zinc-800 variants */
+html[class*="theme-"] .bg-zinc-800,
+html[class*="theme-"] .bg-zinc-800\/40,
+html[class*="theme-"] .bg-zinc-800\/30,
+html[class*="theme-"] .bg-zinc-800\/50,
+html[class*="theme-"] .bg-zinc-800\/60 {
+  background-color: var(--nx-bg-secondary) !important;
+}
+
+/* Borders */
+html[class*="theme-"] .border-zinc-800,
+html[class*="theme-"] .border-zinc-800\/60,
+html[class*="theme-"] .border-zinc-800\/40,
+html[class*="theme-"] .border-zinc-800\/30 {
+  border-color: var(--nx-border) !important;
+}
+
+/* Wildcard catches */
+html[class*="theme-"] [class*="bg-zinc-9"]:not([data-testid="dashboard-sidebar"]):not([data-testid="sidebar"]) {
+  background-color: var(--nx-bg-primary) !important;
+}
+html[class*="theme-"] [class*="bg-zinc-8"]:not([class*="border"]) {
+  background-color: var(--nx-bg-secondary) !important;
+}
+html[class*="theme-"] [class*="border-zinc-8"] {
+  border-color: var(--nx-border) !important;
+}
+
+
+/* ============================================================ */
+/* === ACCENT COLORS                                         === */
+/* ============================================================ */
+
+html[class*="theme-"] .bg-emerald-500 {
+  background-color: var(--nx-accent) !important;
+}
+html[class*="theme-"] .text-emerald-400 {
+  color: var(--nx-accent) !important;
+}
+html[class*="theme-"] .border-emerald-400,
+html[class*="theme-"] .border-emerald-500\/50 {
+  border-color: var(--nx-accent) !important;
+}
+html[class*="theme-"] .bg-emerald-500\/15,
+html[class*="theme-"] .bg-emerald-500\/10,
+html[class*="theme-"] .bg-emerald-500\/20 {
+  background-color: color-mix(in srgb, var(--nx-accent) 15%, transparent) !important;
+}
+
+
+/* ============================================================ */
+/* === CARDS & CONTENT — Semi-transparent over the image     === */
+/* ============================================================ */
+
+/* Workspace cards, project cards, etc. — glass morphism */
+html[class*="theme-"] [data-testid^="workspace-card-"] {
+  background-color: color-mix(in srgb, var(--nx-bg-primary) 80%, transparent) !important;
+  backdrop-filter: blur(8px);
+  border-color: var(--nx-border) !important;
+}
+
+/* Dialog/modal backgrounds */
+html[class*="theme-"] [role="dialog"] > div {
+  background-color: var(--nx-bg-primary) !important;
+  border-color: var(--nx-border) !important;
+}
+
+/* Dropdown menu backgrounds */
+html[class*="theme-"] [role="menu"],
+html[class*="theme-"] .shadow-xl.py-1 {
+  background-color: var(--nx-bg-primary) !important;
+  border-color: var(--nx-border) !important;
+}

@@ -1,0 +1,34 @@
+{
+  "profile_id": "ai_chat_hub",
+  "profile_name": "Nexus Chat",
+  "profile_version": "1.0",
+  "branding": {
+    "platform_name": "Nexus Chat",
+    "tagline": "19 AI Models. One Workspace. Your Keys.",
+    "primary_color": "#1F3864"
+  },
+  "features": {
+    "persistent_collaboration": "opt", "channel_roles": "off",
+    "agent_studio": "opt", "agent_training": "off", "agent_evaluation": "off",
+    "agent_versioning": "off", "orchestration": "off", "a2a_pipelines": "off",
+    "operator_mode": "off", "agent_arena": "off", "agent_dojo": "off",
+    "deployments": "off", "projects": "on", "gantt_chart": "opt",
+    "ideation": "on", "code_repository": "off", "wiki_docs": "on",
+    "workflow_engine": "off", "webhooks": "off", "code_execution": "off",
+    "github_integration": "off", "image_generation": "opt",
+    "video_generation": "off", "tts_audio": "opt",
+    "content_generation": "off", "social_publishing": "off",
+    "roi_calculator": "off", "reporting_engine": "off",
+    "sso_saml": "off", "scim_provisioning": "off", "soc2_compliance": "off",
+    "cloud_storage": "opt", "communication_plugins": "off",
+    "smart_inbox": "off", "desktop_bridge": "off", "nexus_browser": "off",
+    "navc_turboquant": "off", "fine_tuning": "off",
+    "marketplace": "on", "revenue_sharing": "off"
+  },
+  "ai_models": {
+    "available": ["chatgpt","claude","gemini","deepseek","grok","mistral","cohere","groq","perplexity"],
+    "hidden": ["mercury","pi","manus","glm","cursor","notebooklm","copilot"]
+  },
+  "billing": {"product_line": "chat", "stripe_enabled": true, "managed_keys_enabled": true},
+  "onboarding": {"wizard_enabled": true, "default_persona": "solo_creator", "show_persona_selection": false}
+}

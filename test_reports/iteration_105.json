@@ -1,0 +1,85 @@
+{
+  "summary": "Iteration 105 - ROI Calculator, Knowledge Export/Import, Training WebSocket. All 14 backend tests passed (100%). Frontend verified: ROI Calculator renders with StatCards, empty state, period selector. Export/Import buttons exist in AgentTraining component.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration105_roi_knowledge_packs.py",
+    "/app/test_reports/pytest/iteration105_roi_knowledge_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "All ROI endpoints properly aggregate from reporting_events collection",
+    "Knowledge export includes Content-Disposition header for browser download",
+    "Knowledge import correctly checks for duplicate content before inserting",
+    "WebSocket endpoint registered via app (not api_router) for /ws/training/{session_id}"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration105_roi_knowledge_packs.py"
+  ],
+  "success_rate": {
+    "backend": "100% (14/14 tests passed)",
+    "frontend": "100% (ROI Calculator and AgentTraining components verified)"
+  },
+  "test_credentials": {
+    "email": "kelliott@urtech.org",
+    "password": "test",
+    "workspace_id": "ws_a92cb83bfdb2",
+    "agent_id": "nxa_80888f5c29d3"
+  },
+  "seed_data_creation": "Created TEST_ITER105_Import and TEST_ITER105_Duplicate content via knowledge import tests",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 105 features verified: 1) ROI Calculator - 4 endpoints (summary, by-model, by-agent, forecast) all return proper structure. Empty state handled gracefully with 'insufficient_data' trend. 2) Knowledge Export - returns nexus_knowledge_pack_v1 format with chunks, sessions, stats. Content-Disposition header triggers download. 3) Knowledge Import - validates format, rejects empty chunks, skips duplicates by content match, creates training session. 4) Training WebSocket at /ws/training/{session_id} accepts connections. Frontend UI verified via screenshot: ROI Calculator shows at /workspace/{ws}?tab=roi under Insights menu with StatCards (Total Cost, Time Saved, ROI Multiplier, Messages) and period selector (7d/30d/90d). AgentTraining has Export/Import buttons in header.",
+  "verified_features": {
+    "roi_calculator_backend": {
+      "summary_endpoint": "PASS - GET /api/workspaces/{ws}/roi/summary returns costs, volume, roi sections",
+      "by_model_endpoint": "PASS - GET /api/workspaces/{ws}/roi/by-model returns models array",
+      "by_agent_endpoint": "PASS - GET /api/workspaces/{ws}/roi/by-agent returns agents array with roi field",
+      "forecast_endpoint": "PASS - GET /api/workspaces/{ws}/roi/forecast returns trend, forecast array",
+      "period_support": "PASS - Supports 7d, 30d, 90d periods",
+      "empty_state": "PASS - Returns valid structure with zero values when no data"
+    },
+    "roi_calculator_frontend": {
+      "component_renders": "PASS - data-testid='roi-calculator' found",
+      "stat_cards": "PASS - 4 StatCards (Total Cost, Time Saved, ROI Multiplier, Messages)",
+      "period_selector": "PASS - 7d, 30d, 90d buttons with data-testid='roi-period-{period}'",
+      "empty_state_card": "PASS - Shows 'No usage data yet for this period' when no data",
+      "navigation": "PASS - Accessible via Insights > ROI Calculator or ?tab=roi"
+    },
+    "knowledge_export": {
+      "endpoint": "PASS - GET /api/workspaces/{ws}/agents/{agent}/knowledge/export",
+      "format": "PASS - Returns nexus_knowledge_pack_v1 JSON",
+      "content_disposition": "PASS - Header set for file download",
+      "includes_chunks": "PASS - Chunks array with content, topic, category",
+      "includes_stats": "PASS - total_chunks, total_sessions, topics list"
+    },
+    "knowledge_import": {
+      "endpoint": "PASS - POST /api/workspaces/{ws}/agents/{agent}/knowledge/import",
+      "format_validation": "PASS - Rejects non-nexus_knowledge_pack_v1 format",
+      "empty_chunks_validation": "PASS - Rejects packs with no chunks",
+      "creates_chunks": "PASS - Inserts new chunks with session tracking",
+      "skips_duplicates": "PASS - Detects duplicate content and skips",
+      "returns_stats": "PASS - imported, skipped_duplicates, session_id"
+    },
+    "training_websocket": {
+      "endpoint": "PASS - /ws/training/{session_id} registered in server.py",
+      "accepts_connection": "PASS - Returns 101 Switching Protocols"
+    },
+    "frontend_buttons": {
+      "export_btn": "PASS - data-testid='export-knowledge-btn' in AgentTraining.js",
+      "import_btn": "PASS - data-testid='import-knowledge-btn' in AgentTraining.js"
+    }
+  },
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "mocked_apis_list": [],
+    "note": "All endpoints use real MongoDB data aggregation"
+  }
+}

@@ -1,0 +1,35 @@
+# Piston Code Execution — Self-Hosted Docker Setup
+# 
+# For production, self-host Piston instead of using the public emkc.org instance.
+#
+# Quick start:
+#   docker run -d --name piston -p 2000:2000 --privileged ghcr.io/engineer-man/piston
+#
+# Then set in your .env:
+#   PISTON_URL=http://localhost:2000/api/v2/piston
+#
+# Docker Compose (recommended):
+
+version: '3.8'
+services:
+  piston:
+    image: ghcr.io/engineer-man/piston
+    restart: unless-stopped
+    ports:
+      - "2000:2000"
+    privileged: true
+    volumes:
+      - piston-packages:/piston/packages
+    environment:
+      - PISTON_RUN_TIMEOUT=15000
+      - PISTON_COMPILE_TIMEOUT=10000
+      - PISTON_OUTPUT_MAX_SIZE=65536
+
+volumes:
+  piston-packages:
+
+# After starting, install language runtimes:
+#   curl -X POST http://localhost:2000/api/v2/packages -d '{"language":"python","version":"3.11"}'
+#   curl -X POST http://localhost:2000/api/v2/packages -d '{"language":"javascript","version":"18.15.0"}'
+#   curl -X POST http://localhost:2000/api/v2/packages -d '{"language":"typescript","version":"5.0.3"}'
+#   curl -X POST http://localhost:2000/api/v2/packages -d '{"language":"bash","version":"5.2.0"}'
