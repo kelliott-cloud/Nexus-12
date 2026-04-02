@@ -242,13 +242,6 @@ def register_all_routes(app, api_router, db, get_current_user, ws_manager, AI_MO
     from routes.routes_mail_audit import register_mail_audit_routes
     register_mail_audit_routes(api_router, db, get_current_user)
 
-    # --- Internal / Tier 2-3 ---
-    from routes.routes_internal import register_internal_routes
-    register_internal_routes(api_router, db, get_current_user)
-
-    from routes.routes_tier23 import register_tier23_routes
-    register_tier23_routes(api_router, db, get_current_user)
-
     # --- Admin / Analytics / Reporting ---
     from routes.routes_admin import register_admin_routes
     register_admin_routes(api_router, db, get_current_user)
@@ -403,5 +396,11 @@ def register_all_routes(app, api_router, db, get_current_user, ws_manager, AI_MO
 
     from routes.routes_training_ws import register_training_ws_routes
     register_training_ws_routes(app, db, get_current_user)
+
+    from routes.routes_internal import register_internal_routes
+    register_internal_routes(api_router, db, get_current_user)
+
+    from routes.routes_tier23 import register_tier23_routes
+    register_tier23_routes(api_router, db, get_current_user)
 
     logger.info(f"Route registry: All route modules registered")
