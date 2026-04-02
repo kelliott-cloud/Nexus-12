@@ -1,0 +1,145 @@
+{
+  "common": {
+    "save": "Save", "cancel": "Cancel", "delete": "Delete", "edit": "Edit",
+    "create": "Create", "close": "Close", "back": "Back", "next": "Next",
+    "submit": "Submit", "loading": "Loading...", "refresh": "Refresh",
+    "search": "Search", "filter": "Filter", "all": "All", "none": "None",
+    "yes": "Yes", "no": "No", "or": "or", "and": "and",
+    "settings": "Settings", "logout": "Logout", "login": "Sign In",
+    "register": "Sign Up", "email": "Email", "password": "Password",
+    "name": "Name", "description": "Description", "status": "Status",
+    "role": "Role", "plan": "Plan", "free": "Free", "pro": "Pro",
+    "enterprise": "Enterprise", "members": "Members", "workspaces": "Workspaces",
+    "channels": "Channels", "messages": "Messages", "upgrade": "Upgrade",
+    "downgrade": "Downgrade", "currentPlan": "Current Plan", "poweredBy": "Powered by",
+    "personal": "Personal", "admin": "Admin", "analytics": "Analytics",
+    "billing": "Billing", "overview": "Overview", "activity": "Activity",
+    "users": "Users", "joined": "Joined", "created": "Created",
+    "provider": "Provider", "unknown": "Unknown", "unlimited": "Unlimited",
+    "language": "Language"
+  },
+  "landing": {
+    "title": "Nexus Beta", "subtitle": "Where AI Models Collaborate",
+    "description": "One workspace. Nine AI models. Infinite possibilities. Watch Claude, ChatGPT, Gemini, and more work together on your projects in real-time.",
+    "getStarted": "Get Started", "models": "AI Models",
+    "realtime": "Real-time Collaboration",
+    "realtimeDesc": "Watch multiple AI models collaborate, debate, and build together in real-time channels.",
+    "workspaces": "Workspaces",
+    "workspacesDesc": "Organize your AI projects into focused workspaces with channels for different topics.",
+    "customAgents": "Custom Agents",
+    "customAgentsDesc": "Create specialized AI personas with custom instructions and capabilities."
+  },
+  "auth": {
+    "signIn": "Sign In", "signUp": "Sign Up", "company": "Company",
+    "signInWithGoogle": "Sign in with Google", "signUpWithGoogle": "Sign up with Google",
+    "emailPlaceholder": "Email address", "passwordPlaceholder": "Password (min 6 chars)",
+    "namePlaceholder": "Full name", "forgotPassword": "Forgot password?",
+    "alreadyHaveAccount": "Already have an account?", "dontHaveAccount": "Don't have an account?",
+    "createAccount": "Create Account", "welcomeBack": "Welcome back",
+    "signInToAccount": "Sign in to your Nexus account", "createYourAccount": "Create your Nexus account",
+    "companySignup": "Create a dedicated Nexus workspace for your team with its own login, billing, and admin panel.",
+    "companyName": "Company name", "companyUrl": "company-url", "yourLoginUrl": "Your login URL:",
+    "adminAccount": "Admin Account", "yourName": "Your name", "adminEmail": "Admin email",
+    "createOrganization": "Create Organization", "creatingOrganization": "Creating organization..."
+  },
+  "dashboard": {
+    "myOrganizations": "My Organizations", "noWorkspaces": "No workspaces yet",
+    "noWorkspacesDesc": "Create your first workspace to start collaborating with AI agents.",
+    "createWorkspace": "Create Workspace", "createFirst": "Create Your First Workspace",
+    "workspaceName": "Workspace name", "workspaceDesc": "Description (optional)",
+    "newWorkspace": "New Workspace", "disabledWorkspaces": "Disabled Workspaces",
+    "desktopApp": "Desktop App", "reportBug": "Report Bug", "myBugs": "My Bugs",
+    "deleteWorkspace": "Delete Workspace", "disableWorkspace": "Disable",
+    "enableWorkspace": "Enable", "editWorkspace": "Edit",
+    "confirmDelete": "Type workspace name to confirm deletion:"
+  },
+  "workspace": {
+    "chat": "Chat", "agents": "Agents", "skills": "Skills", "tasks": "Tasks",
+    "reports": "Reports", "newChannel": "New Channel", "channelName": "Channel name",
+    "selectAgents": "Select AI agents for this channel",
+    "typeMessage": "Type a message... (Ctrl+Enter to send)", "collaborate": "Collaborate",
+    "collaborating": "AI agents are collaborating...",
+    "noMessages": "No messages yet. Start the conversation!",
+    "noChannels": "No channels yet. Create one to start collaborating."
+  },
+  "adminDashboard": {
+    "title": "Admin Dashboard", "bugReports": "Bug Reports", "activityLogs": "Activity Logs",
+    "organizations": "Organizations", "totalUsers": "Total Users",
+    "totalWorkspaces": "Total Workspaces", "totalMessages": "Total Messages",
+    "totalBugs": "Total Bugs", "noBugs": "No bugs reported",
+    "noLogs": "No activity logs yet", "noOrgs": "No organizations registered yet",
+    "priority": "Priority", "severity": "Severity", "category": "Category",
+    "assignedTo": "Assigned To", "url": "URL"
+  },
+  "bugs": {
+    "title": "Bug Report", "myBugReports": "My Bug Reports", "fileNewBug": "File New Bug",
+    "fileFirstBug": "File Your First Bug", "noBugs": "No bug reports yet",
+    "noBugsDesc": "When you file a bug report, it will appear here so you can track its status.",
+    "bugTitle": "Brief title (max 200 chars)", "bugDescription": "Describe the bug in detail...",
+    "stepsToReproduce": "Steps to reproduce (optional)", "expectedBehavior": "Expected behavior",
+    "actualBehavior": "Actual behavior", "submitBugReport": "Submit Bug Report",
+    "submitting": "Submitting...", "submitted": "Bug Report Submitted!",
+    "submittedDesc": "Thank you for your report. We'll investigate and get back to you.",
+    "open": "Open", "inProgress": "In Progress", "resolved": "Resolved",
+    "closed": "Closed", "wontFix": "Won't Fix", "filed": "Filed"
+  },
+  "settingsPage": {
+    "title": "Settings", "profile": "Profile", "aiKeys": "AI Keys",
+    "preferences": "Preferences", "manageBilling": "Manage Billing",
+    "languagePreference": "Language Preference",
+    "languageDesc": "Choose your preferred language for the platform interface and AI responses."
+  },
+  "billingPage": {
+    "title": "Billing & Plans", "currentPlan": "Current Plan", "perMonth": "/mo",
+    "collaborationsPerMonth": "AI collaborations/month", "maxWorkspaces": "max workspaces",
+    "maxChannels": "max channels per workspace", "prioritySupport": "Priority support",
+    "customAgents": "Custom agents"
+  },
+  "download": {
+    "title": "Desktop App", "nexusForWindows": "Nexus for Windows",
+    "description": "Get the full Nexus experience as a native desktop application. Work with AI agents without opening a browser.",
+    "beta": "Beta", "win64": "Windows 64-bit", "win32": "Windows 32-bit",
+    "recommended": "Recommended",
+    "win64Desc": "For modern Windows 10/11 systems (most computers)",
+    "win32Desc": "For older Windows systems with 32-bit architecture",
+    "downloadExe": "Download .exe", "features": "Features",
+    "onlineMode": "Online Mode",
+    "onlineModeDesc": "Connects to your deployed Nexus server for full functionality",
+    "offlineMode": "Offline Mode",
+    "offlineModeDesc": "Run a local instance of Nexus without internet connection",
+    "nativeExperience": "Native Experience",
+    "nativeExperienceDesc": "Full desktop window with native controls and system integration"
+  },
+  "org": {
+    "signInToOrg": "Sign in to your organization workspace",
+    "orgNotFound": "Organization not found",
+    "orgNotFoundDesc": "The organization \"{slug}\" doesn't exist.",
+    "goToHome": "Go to Nexus Home",
+    "notAMember": "You are not a member of this organization. Contact your org admin for access.",
+    "noWorkspaces": "No workspaces yet",
+    "noWorkspacesDesc": "Create your first workspace to start collaborating with AI agents.",
+    "inviteMember": "Invite Member", "emailAddress": "Email address",
+    "removeMember": "Remove member", "orgAdmin": "Admin", "orgOwner": "Owner",
+    "orgMember": "Member", "orgViewer": "Viewer", "activityLogs": "Activity Logs",
+    "activityDesc": "Organization activity will appear here as your team uses Nexus.",
+    "orgAnalytics": "Organization Analytics", "aiModelUsage": "AI Model Usage",
+    "noUsageData": "No AI usage data yet. Start collaborating with AI agents to see analytics.",
+    "totalMessages": "Total Messages", "aiMessages": "AI Messages", "humanMessages": "Human Messages"
+  },
+  "membersPanel": {
+    "title": "Members", "inviteUser": "Invite User", "inviteByEmail": "Invite by email",
+    "shareLink": "Share invite link", "copyLink": "Copy Link", "observer": "Observer", "user": "User"
+  },
+  "roles": {
+    "superAdmin": "Super Admin", "admin": "Admin", "moderator": "Moderator", "user": "User",
+    "orgOwner": "Owner", "orgAdmin": "Admin", "orgMember": "Member", "orgViewer": "Viewer"
+  },
+  "notifications": {
+    "title": "Notifications", "noNotifications": "No notifications", "markAllRead": "Mark all read"
+  },
+  "taskPanel": {
+    "title": "Task Sessions", "newTask": "New Task", "taskName": "Task name",
+    "selectModel": "Select AI model", "noTasks": "No task sessions yet",
+    "typeTask": "Type your task... (Ctrl+Enter to send)"
+  }
+}

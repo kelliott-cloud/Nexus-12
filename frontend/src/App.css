@@ -1,0 +1,193 @@
+/* App-level styles */
+
+.typing-indicator span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    margin: 0 2px;
+}
+
+.typing-indicator span:nth-child(1) { animation: typingDot 1.4s infinite 0s; }
+.typing-indicator span:nth-child(2) { animation: typingDot 1.4s infinite 0.2s; }
+.typing-indicator span:nth-child(3) { animation: typingDot 1.4s infinite 0.4s; }
+
+/* Code block styling */
+.message-content pre {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 8px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.message-content code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+}
+
+.message-content p code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.message-content p {
+    margin-bottom: 8px;
+    line-height: 1.7;
+}
+
+.message-content ul, .message-content ol {
+    padding-left: 20px;
+    margin-bottom: 8px;
+}
+
+.message-content li {
+    margin-bottom: 4px;
+}
+
+.message-content strong {
+    font-weight: 600;
+    color: #fafafa;
+}
+
+/* Glass effect */
+.glass-panel {
+    background: rgba(9, 9, 11, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Agent status dot animation */
+@keyframes statusPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.7; }
+}
+
+.status-thinking {
+    animation: statusPulse 1.2s ease-in-out infinite;
+}
+
+/* Staggered animation delays */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+/* Custom scrollbar for chat */
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(113, 113, 122, 0.4);
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(113, 113, 122, 0.6);
+}
+
+/* Firefox scrollbar */
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(113, 113, 122, 0.4) transparent;
+}
+
+/* ─── UX Audit: Focus indicators (#14) ─── */
+*:focus-visible {
+    outline: 2px solid rgba(16, 185, 129, 0.5);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid rgba(16, 185, 129, 0.5);
+    outline-offset: 2px;
+}
+
+/* ─── UX Audit: Dark theme depth (#7) ─── */
+.glass-panel {
+    background: rgba(9, 9, 11, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(39, 39, 42, 0.4);
+}
+
+/* Elevated cards get slightly lighter bg */
+[data-testid*="card"], [data-testid*="artifact-row"], [data-testid*="schedule-"], [data-testid*="memory-"] {
+    background-color: rgba(24, 24, 27, 0.5) !important;
+}
+
+
+
+/* ============ READABILITY FIX ============ */
+/* Override Tailwind zinc colors for better contrast in dark mode */
+/* zinc-600 (#52525b) -> lighten to zinc-400 equivalent */
+/* zinc-500 (#71717a) -> lighten to zinc-350 equivalent */
+/* zinc-400 (#a1a1aa) -> stays readable */
+
+.dark .text-zinc-600,
+:root .text-zinc-600 {
+  color: #8e8e96 !important; /* was #52525b — now much brighter */
+}
+
+.dark .text-zinc-500,
+:root .text-zinc-500 {
+  color: #a1a1aa !important; /* was #71717a — bumped up to zinc-400 */
+}
+
+/* Placeholder text — make more visible */
+::placeholder {
+  color: #8e8e96 !important;
+  opacity: 1 !important;
+}
+
+/* Borders — slightly more visible */
+.dark .border-zinc-800,
+:root .border-zinc-800 {
+  border-color: #303036 !important; /* was #27272a — slightly brighter */
+}
+
+/* Badge text in dark mode */
+.dark .text-zinc-400,
+:root .text-zinc-400 {
+  color: #b4b4bc !important; /* was #a1a1aa — slight bump */
+}
+
+/* Sidebar section labels */
+.dark .text-zinc-500.text-xs,
+:root .text-zinc-500.text-xs {
+  color: #9a9aa3 !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* Message timestamps and metadata */
+.dark .text-xs.text-zinc-500,
+.dark .text-xs.text-zinc-600 {
+  color: #8e8e96 !important;
+}
+
+/* Ensure card descriptions are readable */
+.dark p.text-zinc-500,
+.dark p.text-zinc-400,
+.dark span.text-zinc-500 {
+  color: #a8a8b0 !important;
+}
+
+/* Input labels */
+.dark label.text-zinc-500,
+.dark .text-zinc-500.block {
+  color: #9a9aa3 !important;
+}

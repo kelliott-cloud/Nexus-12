@@ -1,0 +1,9 @@
+-r requirements.txt
+pytest
+httpx
+ruff
+black
+flake8
+isort
+mypy
+playwright

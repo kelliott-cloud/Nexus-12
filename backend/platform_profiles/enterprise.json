@@ -1,0 +1,34 @@
+{
+  "profile_id": "enterprise",
+  "profile_name": "Nexus Enterprise",
+  "profile_version": "1.0",
+  "branding": {
+    "platform_name": "Nexus Cloud",
+    "tagline": "Enterprise AI Collaboration Platform",
+    "primary_color": "#1F3864"
+  },
+  "features": {
+    "persistent_collaboration": "on", "channel_roles": "on",
+    "agent_studio": "on", "agent_training": "on", "agent_evaluation": "on",
+    "agent_versioning": "on", "orchestration": "on", "a2a_pipelines": "on",
+    "operator_mode": "on", "agent_arena": "on", "agent_dojo": "on",
+    "deployments": "on", "projects": "on", "gantt_chart": "on",
+    "ideation": "on", "code_repository": "on", "wiki_docs": "on",
+    "workflow_engine": "on", "webhooks": "on", "code_execution": "on",
+    "github_integration": "on", "image_generation": "on",
+    "video_generation": "on", "tts_audio": "on",
+    "content_generation": "on", "social_publishing": "on",
+    "roi_calculator": "on", "reporting_engine": "on",
+    "sso_saml": "on", "scim_provisioning": "on", "soc2_compliance": "on",
+    "cloud_storage": "on", "communication_plugins": "on",
+    "smart_inbox": "on", "desktop_bridge": "on", "nexus_browser": "on",
+    "navc_turboquant": "on", "fine_tuning": "on",
+    "marketplace": "on", "revenue_sharing": "on"
+  },
+  "ai_models": {
+    "available": ["chatgpt","claude","gemini","deepseek","grok","mistral","cohere","groq","perplexity","mercury","pi","manus","qwen","kimi","llama","glm","cursor","notebooklm","copilot"],
+    "hidden": []
+  },
+  "billing": {"product_line": "enterprise", "stripe_enabled": true, "managed_keys_enabled": true},
+  "onboarding": {"wizard_enabled": true, "default_persona": null, "show_persona_selection": true}
+}

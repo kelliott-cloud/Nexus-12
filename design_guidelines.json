@@ -1,0 +1,139 @@
+{
+  "project_name": "Multi-AI Collab Platform",
+  "design_philosophy": {
+    "identity": "The Anti-AI Designer (E1)",
+    "core_principles": [
+      "Fusion over Imitation: Slack structure x VS Code utility x Cyberpunk aesthetics",
+      "Emotion First: The user feels like a 'Commander' in a high-tech control room",
+      "Content is King: Code and conversation are the heroes; UI recedes into the void",
+      "Negative Space: Dense data needs breathing room; use padding to separate logic flows"
+    ],
+    "hall_of_shame": [
+      "Purple/Teal gradients (overused)",
+      "Center-aligned everything (we use asymmetric, functional layouts)",
+      "Pure Black (#000000) backgrounds (kills depth)"
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Inter, system-ui, sans-serif",
+      "body": "Inter, system-ui, sans-serif",
+      "code": "JetBrains Mono, Fira Code, monospace"
+    },
+    "scale": {
+      "h1": "text-4xl md:text-6xl font-bold tracking-tight",
+      "h2": "text-3xl font-semibold tracking-tight",
+      "h3": "text-xl font-medium",
+      "body": "text-sm md:text-base leading-relaxed",
+      "tiny_label": "text-xs font-mono uppercase tracking-wider text-muted-foreground"
+    }
+  },
+  "colors": {
+    "theme": "dark",
+    "palette": {
+      "background": {
+        "app_bg": "bg-zinc-950",
+        "sidebar_bg": "bg-zinc-900",
+        "panel_bg": "bg-zinc-900/50",
+        "card_bg": "bg-zinc-900 border border-zinc-800"
+      },
+      "text": {
+        "primary": "text-zinc-100",
+        "secondary": "text-zinc-400",
+        "muted": "text-zinc-500",
+        "accent": "text-white"
+      },
+      "brand_accents": {
+        "claude": "#D97757",
+        "chatgpt": "#10A37F",
+        "deepseek": "#4D6BFE",
+        "grok": "#FFFFFF",
+        "system": "#3B82F6"
+      },
+      "status": {
+        "online": "bg-emerald-500",
+        "thinking": "bg-amber-500 animate-pulse",
+        "error": "bg-red-500"
+      }
+    },
+    "gradients": {
+      "hero_glow": "bg-gradient-to-b from-zinc-900 to-zinc-950",
+      "active_border": "bg-gradient-to-r from-zinc-700 via-zinc-500 to-zinc-700"
+    }
+  },
+  "layout_structure": {
+    "spacing_system": "Comfortable density. Use p-4 for tight UI, p-8/p-12 for landing sections.",
+    "border_radius": "rounded-md (sharp, technical feel) or rounded-lg (softer)",
+    "grids": {
+      "dashboard": "grid grid-cols-1 md:grid-cols-4 gap-4",
+      "landing_features": "grid grid-cols-1 md:grid-cols-3 gap-8"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all font-medium",
+      "secondary": "bg-zinc-800 text-zinc-100 hover:bg-zinc-700 border border-zinc-700",
+      "ghost": "hover:bg-zinc-800/50 text-zinc-400 hover:text-zinc-100"
+    },
+    "cards": {
+      "style": "bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 hover:border-zinc-700 transition-colors"
+    },
+    "inputs": {
+      "style": "bg-zinc-950 border-zinc-800 focus:ring-1 focus:ring-zinc-700 focus:border-zinc-700 placeholder:text-zinc-600 font-mono text-sm"
+    },
+    "chat_bubbles": {
+      "user": "bg-zinc-800 text-zinc-100 ml-auto rounded-2xl rounded-tr-sm",
+      "ai": "bg-zinc-900 border border-zinc-800 text-zinc-100 mr-auto rounded-2xl rounded-tl-sm",
+      "system": "bg-transparent text-zinc-500 text-xs text-center w-full py-2 italic"
+    },
+    "sidebar": {
+      "style": "border-r border-zinc-800 bg-zinc-900/95 backdrop-blur flex flex-col h-screen"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-xl bg-black/40 border-b border-white/5",
+    "glows": "shadow-[0_0_20px_-5px_var(--glow-color)]",
+    "borders": "1px solid rgba(255,255,255,0.08)"
+  },
+  "image_urls": {
+    "landing_hero_bg": "https://images.unsplash.com/photo-1762278804768-7109128de73f?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "feature_code_screen": "https://images.unsplash.com/photo-1753998943619-b9cd910887e5?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "abstract_network": "https://images.unsplash.com/photo-1677212004257-103cfa6b59d0?crop=entropy&cs=srgb&fm=jpg&q=85"
+  },
+  "accessibility": {
+    "rules": [
+      "Ensure text-to-background contrast ratio of at least 4.5:1",
+      "Use explicit focus states (ring-2 ring-blue-500/50) for keyboard navigation",
+      "Interactive elements must be at least 44x44px target size"
+    ]
+  },
+  "motion_guidelines": {
+    "transitions": "transition-all duration-200 ease-in-out",
+    "micro_interactions": "hover:-translate-y-0.5 hover:shadow-lg active:scale-95",
+    "loading": "animate-pulse bg-zinc-800/50 rounded"
+  },
+  "instructions_to_main_agent": [
+    "DO NOT use gradients for text.",
+    "DO NOT use pure black backgrounds; use Zinc-950 for depth.",
+    "Implement a 'Terminal' aesthetic for the code observation panel (monospaced, dark, simple).",
+    "Use distinct border colors or tiny avatar indicators to differentiate the 4 AI models.",
+    "The 'Connect' button for Google OAuth should be prominent but adhere to the dark theme (e.g., White button with Google 'G' logo).",
+    "Ensure the Chat UI feels 'real-time' - stick the scroll to bottom when new messages arrive."
+  ],
+  "universal_guidelines": [
+    "You tend to converge toward generic, 'on distribution' outputs. In frontend design, this creates what users call the 'AI slop' aesthetic. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Prioritize using pre-existing components from src/components/ui when applicable",
+    "Components MUST use named exports",
+    "Use sonner for toasts"
+  ]
+}

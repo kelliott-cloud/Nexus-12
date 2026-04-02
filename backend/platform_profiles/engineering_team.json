@@ -1,0 +1,34 @@
+{
+  "profile_id": "engineering_team",
+  "profile_name": "Nexus for Engineering",
+  "profile_version": "1.0",
+  "branding": {
+    "platform_name": "Nexus for Engineering",
+    "tagline": "AI Agents That Write, Review, and Ship Code",
+    "primary_color": "#1F3864"
+  },
+  "features": {
+    "persistent_collaboration": "on", "channel_roles": "on",
+    "agent_studio": "on", "agent_training": "on", "agent_evaluation": "opt",
+    "agent_versioning": "on", "orchestration": "on", "a2a_pipelines": "opt",
+    "operator_mode": "opt", "agent_arena": "opt", "agent_dojo": "off",
+    "deployments": "on", "projects": "on", "gantt_chart": "on",
+    "ideation": "opt", "code_repository": "on", "wiki_docs": "on",
+    "workflow_engine": "on", "webhooks": "on", "code_execution": "on",
+    "github_integration": "on", "image_generation": "off",
+    "video_generation": "off", "tts_audio": "off",
+    "content_generation": "off", "social_publishing": "off",
+    "roi_calculator": "opt", "reporting_engine": "on",
+    "sso_saml": "opt", "scim_provisioning": "off", "soc2_compliance": "off",
+    "cloud_storage": "on", "communication_plugins": "on",
+    "smart_inbox": "off", "desktop_bridge": "opt", "nexus_browser": "opt",
+    "navc_turboquant": "off", "fine_tuning": "off",
+    "marketplace": "on", "revenue_sharing": "off"
+  },
+  "ai_models": {
+    "available": ["chatgpt","claude","gemini","deepseek","grok","mistral","groq","copilot","cursor"],
+    "hidden": ["pi","mercury","glm","kimi","notebooklm"]
+  },
+  "billing": {"product_line": "engineering", "stripe_enabled": true, "managed_keys_enabled": true},
+  "onboarding": {"wizard_enabled": true, "default_persona": "developer", "show_persona_selection": true}
+}
