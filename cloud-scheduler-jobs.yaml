@@ -1,0 +1,96 @@
+# Cloud Scheduler jobs that replace the in-process background loops.
+# Deploy with: gcloud scheduler jobs create http <name> --schedule="..." --uri="..." --headers="..."
+#
+# All jobs POST to /api/internal/* endpoints protected by X-Internal-Key.
+# Set INTERNAL_API_KEY on both the Cloud Run service and these scheduler jobs.
+
+jobs:
+  # Agent schedule checker — every 60 seconds
+  - name: nexus-schedule-check
+    schedule: "* * * * *"
+    uri: ${SERVICE_URL}/api/internal/schedule-check
+    method: POST
+    headers:
+      X-Internal-Key: ${INTERNAL_API_KEY}
+    timeout: 120s
+    retryCount: 1
+
+  # Session cleanup — every hour
+  - name: nexus-session-cleanup
+    schedule: "0 * * * *"
+    uri: ${SERVICE_URL}/api/internal/session-cleanup
+    method: POST
+    headers:
+      X-Internal-Key: ${INTERNAL_API_KEY}
+    timeout: 60s
+    retryCount: 2
+
+  # Reporting rollup + alerting — every hour
+  - name: nexus-reporting-rollup
+    schedule: "5 * * * *"
+    uri: ${SERVICE_URL}/api/internal/reporting-rollup
+    method: POST
+    headers:
+      X-Internal-Key: ${INTERNAL_API_KEY}
+    timeout: 300s
+    retryCount: 2
+
+  # Scheduled reports — every hour (offset from rollup)
+  - name: nexus-scheduled-reports
+    schedule: "10 * * * *"
+    uri: ${SERVICE_URL}/api/internal/send-scheduled-reports
+    method: POST
+    headers:
+      X-Internal-Key: ${INTERNAL_API_KEY}
+    timeout: 300s
+    retryCount: 2
+
+  # Orchestration schedules — every 60 seconds
+  - name: nexus-orch-schedules
+    schedule: "* * * * *"
+    uri: ${SERVICE_URL}/api/internal/orch-schedules
+    method: POST
+    headers:
+      X-Internal-Key: ${INTERNAL_API_KEY}
+    timeout: 120s
+    retryCount: 1
+
+  # Cost snapshots + budget alerts — every hour
+  - name: nexus-cost-snapshot
+    schedule: "15 * * * *"
+    uri: ${SERVICE_URL}/api/internal/cost-snapshot
+    method: POST
+    headers:
+      X-Internal-Key: ${INTERNAL_API_KEY}
+    timeout: 300s
+    retryCount: 2
+
+  # Training auto-refresh — daily at 03:00 UTC
+  - name: nexus-training-refresh
+    schedule: "0 3 * * *"
+    uri: ${SERVICE_URL}/api/internal/training-refresh
+    method: POST
+    headers:
+      X-Internal-Key: ${INTERNAL_API_KEY}
+    timeout: 600s
+    retryCount: 1
+
+  # Leaderboard snapshot — daily at 04:00 UTC
+  - name: nexus-leaderboard-snapshot
+    schedule: "0 4 * * *"
+    uri: ${SERVICE_URL}/api/internal/leaderboard-snapshot
+    method: POST
+    headers:
+      X-Internal-Key: ${INTERNAL_API_KEY}
+    timeout: 120s
+    retryCount: 2
+
+  # Knowledge graph purge — daily at 02:00 UTC
+  - name: nexus-kg-purge
+    schedule: "0 2 * * *"
+    uri: ${SERVICE_URL}/api/internal/kg-purge
+    method: POST
+    headers:
+      X-Internal-Key: ${INTERNAL_API_KEY}
+    timeout: 300s
+    retryCount: 1
