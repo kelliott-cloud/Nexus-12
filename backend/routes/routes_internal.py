@@ -84,6 +84,121 @@ def register_internal_routes(api_router, db, get_current_user):
         return {"healthy": checks["database"], "checks": checks}
 
 
+    @api_router.post("/internal/orch-schedules")
+    async def trigger_orch_schedules(request: Request):
+        """Run one pass of orchestration schedule checks."""
+        _verify_internal_key(request)
+        from routes_orch_schedules import run_orchestration_schedules
+        await run_orchestration_schedules(db)
+        return {"status": "completed", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+    @api_router.post("/internal/cost-snapshot")
+    async def trigger_cost_snapshot(request: Request):
+        """Compute cost snapshots and check budget alerts."""
+        _verify_internal_key(request)
+        from cost_batch_job import run_cost_snapshot
+        from routes_cost_alerts import check_cost_alerts
+        await run_cost_snapshot(db)
+        await check_cost_alerts(db)
+        return {"status": "completed", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+    @api_router.post("/internal/training-refresh")
+    async def trigger_training_refresh(request: Request):
+        """Re-crawl stale training sources for agents with auto_refresh enabled."""
+        _verify_internal_key(request)
+        import uuid as _uuid
+        from agent_training_crawler import (
+            fetch_page_content, chunk_content, tokenize_for_retrieval,
+            classify_category, classify_source_authority, score_chunk_quality, _extract_domain,
+        )
+        agents = await db.nexus_agents.find(
+            {"training.auto_refresh": True, "training.enabled": True},
+            {"_id": 0, "agent_id": 1, "workspace_id": 1, "training": 1}
+        ).to_list(50)
+        from datetime import timedelta
+        refreshed = 0
+        for agent in agents:
+            interval = (agent.get("training") or {}).get("refresh_interval_days", 30)
+            last = (agent.get("training") or {}).get("last_trained")
+            if last:
+                try:
+                    last_dt = datetime.fromisoformat(last.replace("Z", "+00:00"))
+                    if datetime.now(timezone.utc) - last_dt < timedelta(days=interval):
+                        continue
+                except Exception:
+                    pass
+            sessions = await db.agent_training_sessions.find(
+                {"agent_id": agent["agent_id"], "source_type": {"$in": ["url", "topics"]}},
+                {"_id": 0, "urls": 1, "manual_urls": 1}
+            ).sort("created_at", -1).limit(3).to_list(3)
+            urls = []
+            for s in sessions:
+                urls.extend(s.get("urls") or [])
+                urls.extend(s.get("manual_urls") or [])
+            if not urls:
+                continue
+            session_id = f"refresh_{_uuid.uuid4().hex[:12]}"
+            total = 0
+            for url in list(set(urls))[:5]:
+                page = await fetch_page_content(url)
+                if page.get("error"):
+                    continue
+                chunks = chunk_content(page.get("text", ""), page.get("title", ""))
+                domain = _extract_domain(url)
+                auth = classify_source_authority(domain)
+                for cd in chunks:
+                    quality = await score_chunk_quality(cd["content"], "refresh")
+                    if quality < 0.3:
+                        continue
+                    tokens = tokenize_for_retrieval(cd["content"])
+                    await db.agent_knowledge.insert_one({
+                        "chunk_id": f"kn_{_uuid.uuid4().hex[:12]}",
+                        "agent_id": agent["agent_id"], "workspace_id": agent["workspace_id"],
+                        "session_id": session_id,
+                        "content": cd["content"], "summary": cd["content"][:200],
+                        "category": classify_category(cd["content"]),
+                        "topic": "auto-refresh", "tags": ["auto-refresh"],
+                        "source": {"type": "web", "url": url, "title": page.get("title", ""), "domain": domain},
+                        "tokens": tokens, "token_count": cd.get("token_count", len(tokens)),
+                        "quality_score": quality, "source_authority": auth,
+                        "flagged": False, "times_retrieved": 0,
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                    })
+                    total += 1
+            if total > 0:
+                await db.nexus_agents.update_one(
+                    {"agent_id": agent["agent_id"]},
+                    {"$set": {"training.last_trained": datetime.now(timezone.utc).isoformat()},
+                     "$inc": {"training.total_chunks": total}}
+                )
+                try:
+                    from routes_agent_training import _post_training_enrich
+                    await _post_training_enrich(db, agent["agent_id"], agent["workspace_id"], session_id)
+                except Exception:
+                    pass
+                refreshed += 1
+        return {"agents_refreshed": refreshed, "timestamp": datetime.now(timezone.utc).isoformat()}
+
+    @api_router.post("/internal/leaderboard-snapshot")
+    async def trigger_leaderboard_snapshot(request: Request):
+        """Create a daily leaderboard snapshot."""
+        _verify_internal_key(request)
+        import uuid as _uuid
+        agents = await db.nexus_agents.find(
+            {}, {"_id": 0, "agent_id": 1, "name": 1, "evaluation.overall_score": 1,
+                 "stats.total_messages": 1, "base_model": 1, "workspace_id": 1}
+        ).limit(100).to_list(100)
+        ranked = sorted(agents, key=lambda a: (a.get("evaluation") or {}).get("overall_score", 0), reverse=True)
+        data = [{"rank": i+1, "agent_id": a.get("agent_id"), "name": a.get("name"),
+                 "score": (a.get("evaluation") or {}).get("overall_score", 0)}
+                for i, a in enumerate(ranked[:25])]
+        await db.leaderboard_snapshots.insert_one({
+            "snapshot_id": f"lbs_{_uuid.uuid4().hex[:12]}",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "data": data, "total_agents": len(agents),
+        })
+        return {"agents_ranked": len(data), "timestamp": datetime.now(timezone.utc).isoformat()}
+
     @api_router.post("/internal/kg-purge")
     async def trigger_kg_purge(request: Request):
         """Execute pending KG purge jobs (consent revocations)."""
