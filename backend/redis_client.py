@@ -118,16 +118,22 @@ async def rate_limit_check(key: str, limit: int = 120, window: int = 60) -> bool
 
 
 async def acquire_lock(lock_name: str, ttl: int = 300) -> bool:
-    """Distributed lock via Redis SETNX."""
+    """Distributed lock via Redis SETNX. Fails closed when Redis is unavailable
+    to prevent duplicate work across Cloud Run instances."""
     r = await get_redis()
     if not r:
-        logger.warning(f"Running {lock_name} without distributed lock (Redis unavailable)")
-        return True  # Single-instance fallback
+        if REDIS_REQUIRED:
+            logger.warning(f"Lock {lock_name}: Redis unavailable (REDIS_REQUIRED=true) — refusing lock")
+            return False
+        logger.warning(f"Running {lock_name} without distributed lock (Redis unavailable, single-instance mode)")
+        return True
     try:
         acquired = await r.set(f"lock:{lock_name}", "1", nx=True, ex=ttl)
         return bool(acquired)
     except Exception as e:
         logger.warning(f"Lock acquire failed for {lock_name}: {e}")
+        if REDIS_REQUIRED:
+            return False
         return True
 
 
