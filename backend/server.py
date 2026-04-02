@@ -1204,170 +1204,176 @@ async def _create_indexes():
     except Exception as _e:
         logger.warning(f"Super admin password check: {_e}")
 
-    # Background task wrapper with resilience + distributed locking
-    async def _resilient_task(name, coro_fn, interval):
-        """Run a background task with auto-restart on crash + distributed lock."""
-        while True:
-            try:
-                from redis_client import acquire_lock, release_lock
-                if not await acquire_lock(f"task_{name}", ttl=interval + 60):
-                    await asyncio.sleep(interval)
-                    continue
-                try:
-                    await coro_fn()
-                finally:
-                    await release_lock(f"task_{name}")
-            except Exception as e:
-                logger.error(f"Background task '{name}' crashed: {e}. Restarting in 60s.")
-                await asyncio.sleep(60)
-                continue
-            await asyncio.sleep(interval)
-
-    # Start background schedule checker
-    from routes.routes_agent_schedules import run_schedule_checker
-    async def _run_schedule_checker():
-        await run_schedule_checker(db, AI_MODELS)
-    asyncio.create_task(_resilient_task("schedule_checker", _run_schedule_checker, 60))
-
-    async def _session_cleanup():
-        result = await db.user_sessions.delete_many(
-            {"expires_at": {"$lt": datetime.now(timezone.utc).isoformat()}}
-        )
-        if result.deleted_count > 0:
-            logger.info(f"Cleaned up {result.deleted_count} expired sessions")
-
-    async def _reporting_work():
-        from routes.routes_reporting import compute_rollups, run_alerting_check, run_scheduled_reports
-        await compute_rollups(db)
-        await run_alerting_check(db)
-        await run_scheduled_reports(db)
-
-    asyncio.create_task(_resilient_task("session_cleanup", _session_cleanup, 3600))
-    asyncio.create_task(_resilient_task("reporting_rollup", _reporting_work, 3600))
-
-    # Orchestration schedule checker — runs every 60 seconds
-    async def _orch_schedule_check():
-        from routes.routes_orch_schedules import run_orchestration_schedules
-        await run_orchestration_schedules(db)
-    asyncio.create_task(_resilient_task("orch_schedule_checker", _orch_schedule_check, 60))
-
-    # Cost snapshot batch job — runs every hour
-    async def _cost_snapshot_work():
-        from cost_batch_job import run_cost_snapshot
-        from routes.routes_cost_alerts import check_cost_alerts
-        await run_cost_snapshot(db)
-        await check_cost_alerts(db)
-    asyncio.create_task(_resilient_task("cost_snapshot", _cost_snapshot_work, 3600))
-
-    # Training auto-refresh — re-crawl stale sources daily
-    async def _training_auto_refresh():
-        from datetime import timedelta as _td
-        agents = await db.nexus_agents.find(
-            {"training.auto_refresh": True, "training.enabled": True},
-            {"_id": 0, "agent_id": 1, "workspace_id": 1, "skills": 1, "training": 1}
-        ).to_list(50)
-        for agent in agents:
-            interval = (agent.get("training") or {}).get("refresh_interval_days", 30)
-            last = (agent.get("training") or {}).get("last_trained")
-            if last:
-                from datetime import datetime as _dt
-                try:
-                    last_dt = _dt.fromisoformat(last.replace("Z", "+00:00"))
-                    if _dt.now(timezone.utc) - last_dt < _td(days=interval):
-                        continue
-                except Exception as _e:
-                    import logging; logging.getLogger("server").warning(f"Suppressed: {_e}")
-            # Find URLs from previous sessions to re-crawl
-            sessions = await db.agent_training_sessions.find(
-                {"agent_id": agent["agent_id"], "source_type": {"$in": ["url", "topics"]}},
-                {"_id": 0, "urls": 1, "manual_urls": 1}
-            ).sort("created_at", -1).limit(3).to_list(3)
-            urls = []
-            for s in sessions:
-                urls.extend(s.get("urls") or [])
-                urls.extend(s.get("manual_urls") or [])
-            if urls:
-                from agent_training_crawler import fetch_page_content, chunk_content, tokenize_for_retrieval, classify_category, extract_tags, classify_source_authority, score_chunk_quality, _extract_domain
-                session_id = f"refresh_{uuid.uuid4().hex[:12]}"
-                total = 0
-                for url in list(set(urls))[:5]:
-                    page = await fetch_page_content(url)
-                    if page.get("error"):
-                        continue
-                    chunks = chunk_content(page.get("text", ""), page.get("title", ""))
-                    domain = _extract_domain(url)
-                    auth = classify_source_authority(domain)
-                    for cd in chunks:
-                        quality = await score_chunk_quality(cd["content"], "refresh")
-                        if quality < 0.3:
-                            continue
-                        tokens = tokenize_for_retrieval(cd["content"])
-                        await db.agent_knowledge.insert_one({
-                            "chunk_id": f"kn_{uuid.uuid4().hex[:12]}",
-                            "agent_id": agent["agent_id"], "workspace_id": agent["workspace_id"],
-                            "session_id": session_id,
-                            "content": cd["content"], "summary": cd["content"][:200],
-                            "category": classify_category(cd["content"]),
-                            "topic": "auto-refresh", "tags": ["auto-refresh"],
-                            "source": {"type": "web", "url": url, "title": page.get("title", ""), "domain": domain},
-                            "tokens": tokens, "token_count": cd.get("token_count", len(tokens)),
-                            "quality_score": quality, "source_authority": auth,
-                            "flagged": False, "times_retrieved": 0,
-                            "created_at": datetime.now(timezone.utc).isoformat(),
-                        })
-                        total += 1
-                if total > 0:
-                    await db.nexus_agents.update_one(
-                        {"agent_id": agent["agent_id"]},
-                        {"$set": {"training.last_trained": datetime.now(timezone.utc).isoformat()},
-                         "$inc": {"training.total_chunks": total}}
-                    )
-                    # Post-refresh enrichment (AI summary + BM25 embeddings)
-                    try:
-                        from routes.routes_agent_training import _post_training_enrich
-                        await _post_training_enrich(db, agent["agent_id"], agent["workspace_id"], session_id)
-                    except Exception as enrich_err:
-                        logger.debug(f"Post-refresh enrichment skipped: {enrich_err}")
-                    logger.info(f"Auto-refresh: {total} chunks for agent {agent['agent_id']}")
-    asyncio.create_task(_resilient_task("training_auto_refresh", _training_auto_refresh, 86400))
-
-    # Leaderboard snapshot — daily
-    async def _leaderboard_snapshot():
-        agents = await db.nexus_agents.find(
-            {}, {"_id": 0, "agent_id": 1, "name": 1, "evaluation.overall_score": 1, "stats.total_messages": 1, "base_model": 1, "workspace_id": 1}
-        ).limit(100).to_list(100)
-        ranked = sorted(agents, key=lambda a: (a.get("evaluation") or {}).get("overall_score", 0), reverse=True)
-        data = [{"rank": i+1, "agent_id": a.get("agent_id"), "name": a.get("name"), "score": (a.get("evaluation") or {}).get("overall_score", 0)} for i, a in enumerate(ranked[:25])]
-        await db.leaderboard_snapshots.insert_one({
-            "snapshot_id": f"lbs_{uuid.uuid4().hex[:12]}",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "data": data, "total_agents": len(agents),
-        })
-    asyncio.create_task(_resilient_task("leaderboard_snapshot", _leaderboard_snapshot, 86400))
-
-    # Auto-resume persistent collaboration sessions from DB
+    # Start Redis Pub/Sub subscriber for cross-instance WebSocket fan-out
     try:
-        persist_channels = await db.channels.find(
-            {"auto_collab_persist": True},
-            {"_id": 0, "channel_id": 1, "workspace_id": 1}
-        ).to_list(50)
-        for ch in persist_channels:
-            channel_id = ch["channel_id"]
-            # Find the workspace owner to use as the user_id
-            ws = await db.workspaces.find_one({"workspace_id": ch.get("workspace_id", "")}, {"_id": 0, "owner_id": 1})
-            user_id = ws.get("owner_id", "") if ws else ""
-            if user_id and channel_id not in persist_sessions:
-                await state_set("collab:persist", channel_id, {
-                    "enabled": True, "round": 0, "delay": 5,
-                    "min_delay": 3, "max_delay": 120,
-                    "consecutive_errors": 0, "status": "resuming",
-                    "user_id": user_id,
-                    "started_at": datetime.now(timezone.utc).isoformat(),
-                })
-                await state_set("collab:active", f"{channel_id}_running", True)
-                asyncio.create_task(run_persist_collaboration(channel_id, user_id))
-                logger.info(f"Resumed persist collaboration for {channel_id}")
-        if persist_channels:
-            logger.info(f"Resumed {len(persist_channels)} persistent collaboration sessions")
+        await ws_manager.start_subscriber()
     except Exception as e:
-        logger.warning(f"Persist resume failed: {e}")
+        logger.warning(f"WebSocket Pub/Sub subscriber failed to start: {e}")
+
+    # Background tasks: on Cloud Run, use external triggers (Cloud Scheduler -> /internal/* endpoints)
+    # instead of in-process loops. Set ENABLE_BACKGROUND_TASKS=true only for single-instance / VM deploys.
+    _enable_bg = os.environ.get("ENABLE_BACKGROUND_TASKS", "").lower() in ("true", "1", "yes")
+
+    if _enable_bg:
+        logger.info("ENABLE_BACKGROUND_TASKS=true — starting in-process background loops")
+
+        async def _resilient_task(name, coro_fn, interval):
+            """Run a background task with auto-restart on crash + distributed lock."""
+            while True:
+                try:
+                    from redis_client import acquire_lock, release_lock
+                    if not await acquire_lock(f"task_{name}", ttl=interval + 60):
+                        await asyncio.sleep(interval)
+                        continue
+                    try:
+                        await coro_fn()
+                    finally:
+                        await release_lock(f"task_{name}")
+                except Exception as e:
+                    logger.error(f"Background task '{name}' crashed: {e}. Restarting in 60s.")
+                    await asyncio.sleep(60)
+                    continue
+                await asyncio.sleep(interval)
+
+        from routes.routes_agent_schedules import run_schedule_checker
+        async def _run_schedule_checker():
+            await run_schedule_checker(db, AI_MODELS)
+        asyncio.create_task(_resilient_task("schedule_checker", _run_schedule_checker, 60))
+
+        async def _session_cleanup():
+            result = await db.user_sessions.delete_many(
+                {"expires_at": {"$lt": datetime.now(timezone.utc).isoformat()}}
+            )
+            if result.deleted_count > 0:
+                logger.info(f"Cleaned up {result.deleted_count} expired sessions")
+
+        async def _reporting_work():
+            from routes.routes_reporting import compute_rollups, run_alerting_check, run_scheduled_reports
+            await compute_rollups(db)
+            await run_alerting_check(db)
+            await run_scheduled_reports(db)
+
+        asyncio.create_task(_resilient_task("session_cleanup", _session_cleanup, 3600))
+        asyncio.create_task(_resilient_task("reporting_rollup", _reporting_work, 3600))
+
+        async def _orch_schedule_check():
+            from routes.routes_orch_schedules import run_orchestration_schedules
+            await run_orchestration_schedules(db)
+        asyncio.create_task(_resilient_task("orch_schedule_checker", _orch_schedule_check, 60))
+
+        async def _cost_snapshot_work():
+            from cost_batch_job import run_cost_snapshot
+            from routes.routes_cost_alerts import check_cost_alerts
+            await run_cost_snapshot(db)
+            await check_cost_alerts(db)
+        asyncio.create_task(_resilient_task("cost_snapshot", _cost_snapshot_work, 3600))
+
+        async def _training_auto_refresh():
+            from datetime import timedelta as _td
+            agents = await db.nexus_agents.find(
+                {"training.auto_refresh": True, "training.enabled": True},
+                {"_id": 0, "agent_id": 1, "workspace_id": 1, "skills": 1, "training": 1}
+            ).to_list(50)
+            for agent in agents:
+                interval = (agent.get("training") or {}).get("refresh_interval_days", 30)
+                last = (agent.get("training") or {}).get("last_trained")
+                if last:
+                    from datetime import datetime as _dt
+                    try:
+                        last_dt = _dt.fromisoformat(last.replace("Z", "+00:00"))
+                        if _dt.now(timezone.utc) - last_dt < _td(days=interval):
+                            continue
+                    except Exception as _e:
+                        import logging; logging.getLogger("server").warning(f"Suppressed: {_e}")
+                sessions = await db.agent_training_sessions.find(
+                    {"agent_id": agent["agent_id"], "source_type": {"$in": ["url", "topics"]}},
+                    {"_id": 0, "urls": 1, "manual_urls": 1}
+                ).sort("created_at", -1).limit(3).to_list(3)
+                urls = []
+                for s in sessions:
+                    urls.extend(s.get("urls") or [])
+                    urls.extend(s.get("manual_urls") or [])
+                if urls:
+                    from agent_training_crawler import fetch_page_content, chunk_content, tokenize_for_retrieval, classify_category, extract_tags, classify_source_authority, score_chunk_quality, _extract_domain
+                    session_id = f"refresh_{uuid.uuid4().hex[:12]}"
+                    total = 0
+                    for url in list(set(urls))[:5]:
+                        page = await fetch_page_content(url)
+                        if page.get("error"):
+                            continue
+                        chunks = chunk_content(page.get("text", ""), page.get("title", ""))
+                        domain = _extract_domain(url)
+                        auth = classify_source_authority(domain)
+                        for cd in chunks:
+                            quality = await score_chunk_quality(cd["content"], "refresh")
+                            if quality < 0.3:
+                                continue
+                            tokens = tokenize_for_retrieval(cd["content"])
+                            await db.agent_knowledge.insert_one({
+                                "chunk_id": f"kn_{uuid.uuid4().hex[:12]}",
+                                "agent_id": agent["agent_id"], "workspace_id": agent["workspace_id"],
+                                "session_id": session_id,
+                                "content": cd["content"], "summary": cd["content"][:200],
+                                "category": classify_category(cd["content"]),
+                                "topic": "auto-refresh", "tags": ["auto-refresh"],
+                                "source": {"type": "web", "url": url, "title": page.get("title", ""), "domain": domain},
+                                "tokens": tokens, "token_count": cd.get("token_count", len(tokens)),
+                                "quality_score": quality, "source_authority": auth,
+                                "flagged": False, "times_retrieved": 0,
+                                "created_at": datetime.now(timezone.utc).isoformat(),
+                            })
+                            total += 1
+                    if total > 0:
+                        await db.nexus_agents.update_one(
+                            {"agent_id": agent["agent_id"]},
+                            {"$set": {"training.last_trained": datetime.now(timezone.utc).isoformat()},
+                             "$inc": {"training.total_chunks": total}}
+                        )
+                        try:
+                            from routes.routes_agent_training import _post_training_enrich
+                            await _post_training_enrich(db, agent["agent_id"], agent["workspace_id"], session_id)
+                        except Exception as enrich_err:
+                            logger.debug(f"Post-refresh enrichment skipped: {enrich_err}")
+                        logger.info(f"Auto-refresh: {total} chunks for agent {agent['agent_id']}")
+        asyncio.create_task(_resilient_task("training_auto_refresh", _training_auto_refresh, 86400))
+
+        async def _leaderboard_snapshot():
+            agents = await db.nexus_agents.find(
+                {}, {"_id": 0, "agent_id": 1, "name": 1, "evaluation.overall_score": 1, "stats.total_messages": 1, "base_model": 1, "workspace_id": 1}
+            ).limit(100).to_list(100)
+            ranked = sorted(agents, key=lambda a: (a.get("evaluation") or {}).get("overall_score", 0), reverse=True)
+            data = [{"rank": i+1, "agent_id": a.get("agent_id"), "name": a.get("name"), "score": (a.get("evaluation") or {}).get("overall_score", 0)} for i, a in enumerate(ranked[:25])]
+            await db.leaderboard_snapshots.insert_one({
+                "snapshot_id": f"lbs_{uuid.uuid4().hex[:12]}",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "data": data, "total_agents": len(agents),
+            })
+        asyncio.create_task(_resilient_task("leaderboard_snapshot", _leaderboard_snapshot, 86400))
+
+        # Auto-resume persistent collaboration sessions from DB
+        try:
+            persist_channels = await db.channels.find(
+                {"auto_collab_persist": True},
+                {"_id": 0, "channel_id": 1, "workspace_id": 1}
+            ).to_list(50)
+            for ch in persist_channels:
+                channel_id = ch["channel_id"]
+                ws = await db.workspaces.find_one({"workspace_id": ch.get("workspace_id", "")}, {"_id": 0, "owner_id": 1})
+                user_id = ws.get("owner_id", "") if ws else ""
+                if user_id and channel_id not in persist_sessions:
+                    await state_set("collab:persist", channel_id, {
+                        "enabled": True, "round": 0, "delay": 5,
+                        "min_delay": 3, "max_delay": 120,
+                        "consecutive_errors": 0, "status": "resuming",
+                        "user_id": user_id,
+                        "started_at": datetime.now(timezone.utc).isoformat(),
+                    })
+                    await state_set("collab:active", f"{channel_id}_running", True)
+                    asyncio.create_task(run_persist_collaboration(channel_id, user_id))
+                    logger.info(f"Resumed persist collaboration for {channel_id}")
+            if persist_channels:
+                logger.info(f"Resumed {len(persist_channels)} persistent collaboration sessions")
+        except Exception as e:
+            logger.warning(f"Persist resume failed: {e}")
+    else:
+        logger.info("Background tasks disabled (Cloud Run mode). Use Cloud Scheduler -> /api/internal/* endpoints.")

@@ -1,0 +1,68 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: nexus-backend
+  annotations:
+    run.googleapis.com/launch-stage: GA
+spec:
+  template:
+    metadata:
+      annotations:
+        # Allow up to 4 instances (adjust for traffic)
+        autoscaling.knative.dev/maxScale: "4"
+        autoscaling.knative.dev/minScale: "1"
+        # WebSocket / long-poll support: keep instances alive for up to 60 min
+        run.googleapis.com/sessionAffinity: "true"
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 3600
+      containers:
+        - image: IMAGE_URL
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              # Playwright + AI workloads need headroom
+              memory: 2Gi
+              cpu: "2"
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            periodSeconds: 30
+            failureThreshold: 3
+          env:
+            # Cloud Run sets PORT automatically; these are app-specific:
+            - name: ENVIRONMENT
+              value: production
+            - name: STRUCTURED_LOGGING
+              value: "true"
+            - name: WORKERS
+              value: "1"
+            # Redis is required for multi-instance coordination
+            - name: REDIS_REQUIRED
+              value: "true"
+            # Disable in-process background loops; use Cloud Scheduler instead
+            - name: ENABLE_BACKGROUND_TASKS
+              value: "false"
+            # Use S3-compatible storage (Cloud Storage via interop or R2)
+            - name: STORAGE_BACKEND
+              value: s3
+            # These should be set via Secret Manager references:
+            # - name: MONGO_URL
+            #   valueFrom:
+            #     secretKeyRef: ...
+            # - name: REDIS_URL
+            # - name: ENCRYPTION_KEY
+            # - name: INTERNAL_API_KEY
+            # - name: S3_ENDPOINT_URL
+            # - name: S3_ACCESS_KEY_ID
+            # - name: S3_SECRET_ACCESS_KEY
+            # - name: STORAGE_BUCKET

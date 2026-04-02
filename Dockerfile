@@ -27,7 +27,13 @@ RUN python -m playwright install firefox
 COPY backend/ /app/backend/
 
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD curl -f http://localhost:8080/api/health || exit 1
+
+# Cloud Run ignores Docker HEALTHCHECK — configure startup/liveness probes
+# in the Cloud Run service definition instead (see cloudrun.yaml).
 WORKDIR /app/backend
+
+# Force WORKERS=1 to prevent duplicate background tasks, state divergence,
+# and Pub/Sub subscriber conflicts. Cloud Run scales horizontally via
+# instances, not via in-process workers.
+ENV WORKERS=1
 CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port ${PORT:-8080} --workers ${WORKERS:-1}"]

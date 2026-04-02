@@ -397,39 +397,44 @@ Provide a clear, concise summary of findings and any actions taken."""
         await db.messages.insert_one(err_msg)
 
 
+async def execute_due_schedules(db, AI_MODELS) -> int:
+    """Run one pass of the schedule checker. Returns count of schedules executed.
+    Safe for external triggers (Cloud Scheduler / HTTP cron) — no infinite loop."""
+    count = 0
+    try:
+        now = datetime.now(timezone.utc)
+        now_iso = now.isoformat()
+
+        due_schedules = await db.agent_schedules.find(
+            {"enabled": True, "next_run_at": {"$lte": now_iso}},
+            {"_id": 0}
+        ).to_list(10)
+
+        for schedule in due_schedules:
+            claimed = await db.agent_schedules.update_one(
+                {
+                    "schedule_id": schedule["schedule_id"],
+                    "next_run_at": schedule["next_run_at"],
+                },
+                {"$set": {
+                    "next_run_at": (now + timedelta(minutes=schedule["interval_minutes"])).isoformat(),
+                }}
+            )
+            if claimed.modified_count == 1:
+                logger.info(f"Executing due schedule: {schedule['schedule_id']}")
+                asyncio.create_task(
+                    execute_scheduled_action(db, schedule, schedule["created_by"], AI_MODELS)
+                )
+                count += 1
+    except Exception as e:
+        logger.error(f"Schedule checker error: {e}")
+    return count
+
+
 async def run_schedule_checker(db, AI_MODELS):
     """Background loop that checks for and executes due schedules.
-    Uses a MongoDB lock to ensure only one worker runs schedules at a time."""
+    Delegates to execute_due_schedules() each iteration."""
     logger.info("Schedule checker started")
     while True:
-        try:
-            now = datetime.now(timezone.utc)
-            now_iso = now.isoformat()
-
-            # Acquire a distributed lock to prevent multiple workers from running the same schedule
-            due_schedules = await db.agent_schedules.find(
-                {"enabled": True, "next_run_at": {"$lte": now_iso}},
-                {"_id": 0}
-            ).to_list(10)
-
-            for schedule in due_schedules:
-                # Atomically claim this schedule by advancing next_run_at
-                # Only one worker will succeed with this update
-                claimed = await db.agent_schedules.update_one(
-                    {
-                        "schedule_id": schedule["schedule_id"],
-                        "next_run_at": schedule["next_run_at"],  # only if unchanged
-                    },
-                    {"$set": {
-                        "next_run_at": (now + timedelta(minutes=schedule["interval_minutes"])).isoformat(),
-                    }}
-                )
-                if claimed.modified_count == 1:
-                    logger.info(f"Executing due schedule: {schedule['schedule_id']}")
-                    asyncio.create_task(
-                        execute_scheduled_action(db, schedule, schedule["created_by"], AI_MODELS)
-                    )
-        except Exception as e:
-            logger.error(f"Schedule checker error: {e}")
-
-        await asyncio.sleep(60)  # Check every 60 seconds
+        await execute_due_schedules(db, AI_MODELS)
+        await asyncio.sleep(60)
