@@ -286,14 +286,9 @@ def register_file_routes(api_router, db, get_current_user, check_workspace_permi
         ext = get_file_extension(file.filename)
         stored_filename = f"{file_id}.{ext}"
         
-        # Create workspace directory
-        ws_dir = UPLOAD_DIR / workspace_id
-        ws_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save file
-        file_path = ws_dir / stored_filename
-        with open(file_path, "wb") as f:
-            f.write(content)
+        # Save file via storage abstraction (S3 in production, local in dev)
+        from storage import save_file as _save_file
+        await _save_file(workspace_id, stored_filename, content)
         
         # Create file record
         file_record = {
